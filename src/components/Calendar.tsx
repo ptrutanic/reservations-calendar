@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { generateReservations, getWeekDates, isEvenDay, isWorkingHour } from '../utils/AvailabilityService';
-import { breakHours, daysOfWeek, workHours } from '../utils/Constants';
+import { breakHours, daysOfWeek, reservationDurationMinutes, workHours } from '../utils/Constants';
 import CalendarLegend from './CalendarLegend';
 
 function Calendar() {
@@ -55,13 +55,26 @@ function Calendar() {
               <tr key={index}>
                 <td className="calendar-hours">{hour}</td>
                 {getWeekDates().map((day: Date, index: number) =>
-                  <td key={index} className={`calendar-cell calendar-border ${isWorkingHour(day, hour) ? '' : 'calendar-hours-nonWorking'}`}>
+                  <td
+                    key={index}
+                    className={`calendar-cell calendar-border ${isWorkingHour(day, hour) ? '' : 'calendar-hours-nonWorking'}`}>
                     {getReservationsForCell(day, hour).map((reservation, index: number) =>
-                      <div key={index} className="calendar-entry reservation" style={{top: getOffset(reservation.getMinutes())}}>
+                      <div
+                        key={index}
+                        className="calendar-entry reservation"
+                        style={{
+                          top: getOffset(reservation.getMinutes()),
+                          height: getOffset(reservationDurationMinutes)
+                        }}
+                      >
                       </div>
                     )}
-                    { isBreakHour(day, hour) &&
-                      <div key={index} className="calendar-entry break" style={{height: getOffset(breakHours.durationMinutes)}}>
+                    {isBreakHour(day, hour) &&
+                      <div
+                        key={index}
+                        className="calendar-entry break"
+                        style={{height: getOffset(breakHours.durationMinutes)}}
+                      >
                       </div>
                     }
                   </td>
