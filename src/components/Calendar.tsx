@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { generateReservations, getWeekDates, isWorkingHour } from '../utils/AvailabilityService';
-import { daysOfWeek, workHours } from '../utils/Constants';
+import { useEffect, useState } from 'react';
+import { generateReservations, getWeekDates, isEvenDay, isWorkingHour } from '../utils/AvailabilityService';
+import { breakHours, daysOfWeek, workHours } from '../utils/Constants';
 import CalendarLegend from './CalendarLegend';
 
 function Calendar() {
@@ -24,9 +24,18 @@ function Calendar() {
       reservation.getDate() === date.getDate() && reservation.getHours() === hour)
   }
 
-  const getReservationOffset = (date: Date) => {
+  const getOffset = (minutes: number) => {
     const cellHeight = 33;
-    return (date.getMinutes() / 60) * cellHeight;
+    return (minutes / 60) * cellHeight;
+  }
+
+  const isBreakHour = (date: Date, hour: number) => {
+    if (!isWorkingHour(date, hour))
+      return;
+
+    return isEvenDay(date)
+      ? breakHours.morning === hour
+      : breakHours.afternoon === hour;
   }
 
   return (
@@ -48,10 +57,13 @@ function Calendar() {
                 {getWeekDates().map((day: Date, index: number) =>
                   <td key={index} className={`calendar-cell calendar-border ${isWorkingHour(day, hour) ? '' : 'calendar-hours-nonWorking'}`}>
                     {getReservationsForCell(day, hour).map((reservation, index: number) =>
-                      <div key={index} className="calendar-entry reservation" style={{top: getReservationOffset(reservation)}}>
-                        {reservation.getMinutes()}
+                      <div key={index} className="calendar-entry reservation" style={{top: getOffset(reservation.getMinutes())}}>
                       </div>
                     )}
+                    { isBreakHour(day, hour) &&
+                      <div key={index} className="calendar-entry break" style={{height: getOffset(breakHours.durationMinutes)}}>
+                      </div>
+                    }
                   </td>
                 )}
               </tr>
