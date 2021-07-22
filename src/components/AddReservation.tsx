@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import MomentUtils from '@date-io/moment';
 import {
   MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
+  TimePicker,
+  DatePicker,
 } from '@material-ui/pickers';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import { isWorkingDay } from '../utils/AvailabilityService';
@@ -43,29 +43,19 @@ function AddReservation(props: AddReservationProps) {
   return (
     <div className="addReservation-container">
       <MuiPickersUtilsProvider utils={MomentUtils}>
-        <KeyboardDatePicker
-          disableToolbar
-          variant="inline"
-          format="DD/MM/yyyy"
-          margin="normal"
-          id="date-picker-inline"
+        <DatePicker
           label="Reservation date"
+          format="DD/MM/yyyy"
+          shouldDisableDate={isDateDisabled}
           value={selectedDate}
           onChange={handleDateChange}
-          shouldDisableDate={isDateDisabled}
-          KeyboardButtonProps={{
-            'aria-label': 'change date',
-          }}
+          animateYearScrolling
         />
-        <KeyboardTimePicker
-          margin="normal"
-          id="time-picker"
+        <TimePicker
+          ampm={false}
           label="Reservation time"
           value={selectedDate}
           onChange={handleDateChange}
-          KeyboardButtonProps={{
-          'aria-label': 'change time',
-        }}
         />
       </MuiPickersUtilsProvider>
       <Button variant="contained" color="primary" onClick={handleSave}>

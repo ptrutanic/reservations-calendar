@@ -1,13 +1,17 @@
+import { Snackbar } from '@material-ui/core';
 import { useEffect, useState } from 'react';
-import { generateReservations, getWeekDates, isEvenDay, isOverlappingReservation, isReservationOverlappingBrakeTime, isWorkingHour } from '../utils/AvailabilityService';
+import { generateReservations, getWeekDates, isEvenDay, isOverlappingReservation, isReservationOverlappingBreakTime, isWorkingHour } from '../utils/AvailabilityService';
 import { breakHours, daysOfWeek, reservationDurationMinutes, workHours } from '../utils/Constants';
+import MuiAlert from '@material-ui/lab/Alert';
 import AddReservation from './AddReservation';
 import CalendarLegend from './CalendarLegend';
 
 function Calendar() {
   const [reservations, setReservations] = useState<Date[]>([]);
   const [userCreatedReservations, setUserCreatedReservations] = useState<Date[]>([]);
-  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
   useEffect(() => {
     if (!reservations.length)
@@ -42,17 +46,40 @@ function Calendar() {
   }
 
   const handleAddReservation = (date: Date) => {
-    if (isOverlappingReservation(reservations, date)) {
+    if (!isWorkingHour(date, date.getHours())) {
+      setSnackbarMessage('The office is not working on selected date and time');
+      setSnackbarOpen(true);
       return;
     }
 
-    if (isReservationOverlappingBrakeTime(date)) {
+    if (isOverlappingReservation(reservations, date)) {
+      setSnackbarMessage('There is another reservation overlapping with your reservation');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (isReservationOverlappingBreakTime(date)) {
+      setSnackbarMessage('The office is having a break on selected time');
+      setSnackbarOpen(true);
       return;
     }
 
     setReservations([...reservations, date]);
     setUserCreatedReservations([...userCreatedReservations, date]);
   }
+
+  const Alert = (props: any) => {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
+
+  const handleSnackbarClose = (event: any, reason: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarMessage('');
+    setSnackbarOpen(false);
+  };
 
   return (
     <div className="calendar-container">
@@ -102,6 +129,11 @@ function Calendar() {
         </table>
         <CalendarLegend/>
       </div>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity="error">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
