@@ -46,22 +46,34 @@ function Calendar() {
       : breakHours.afternoon === hour;
   }
 
+  const triggerSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  }
+
   const handleAddReservation = (date: Date) => {
     if (!isWorkingHour(date, date.getHours())) {
-      setSnackbarMessage('The office is not working on selected date and time');
-      setSnackbarOpen(true);
+      triggerSnackbar('The office is not working on selected date and time');
       return;
     }
 
     if (isOverlappingReservation(reservations, date)) {
-      setSnackbarMessage('There is another reservation overlapping with your reservation');
-      setSnackbarOpen(true);
+      triggerSnackbar('There is another reservation overlapping with your reservation');
       return;
     }
 
     if (isReservationOverlappingBreakTime(date)) {
-      setSnackbarMessage('The office is having a break on selected time');
-      setSnackbarOpen(true);
+      triggerSnackbar('The office is having a break on selected time');
+      return;
+    }
+
+    if (userCreatedReservations.length >= 2) {
+      triggerSnackbar('You can not make more than 2 reservations in a week');
+      return;
+    }
+
+    if (userCreatedReservations.some((reservation: Date) => reservation.getDate() === date.getDate())) {
+      triggerSnackbar('You can not make more than 1 reservation in a day');
       return;
     }
 
