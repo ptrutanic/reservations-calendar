@@ -1,10 +1,11 @@
-import { Snackbar } from '@material-ui/core';
+import { Snackbar, Tooltip } from '@material-ui/core';
 import { useEffect, useState } from 'react';
 import { generateReservations, getWeekDates, isEvenDay, isOverlappingReservation, isReservationOverlappingBreakTime, isWorkingHour } from '../utils/AvailabilityService';
 import { breakHours, daysOfWeek, reservationDurationMinutes, workHours } from '../utils/Constants';
 import MuiAlert from '@material-ui/lab/Alert';
 import AddReservation from './AddReservation';
 import CalendarLegend from './CalendarLegend';
+import moment from 'moment';
 
 function Calendar() {
   const [reservations, setReservations] = useState<Date[]>([]);
@@ -81,6 +82,17 @@ function Calendar() {
     setSnackbarOpen(false);
   };
 
+  const getTimeTooltip = (reservation: Date, durationMinutes: number) => {
+    const reservationStart = moment(reservation);
+    const reservationEnd = moment(reservationStart).add(durationMinutes, 'minutes');
+    return `${reservationStart.format('HH:mm')} - ${reservationEnd.format('HH:mm')}`;
+  }
+
+  const getBreakTooltip = (day: Date) => {
+    const breakStart = isEvenDay(day) ? breakHours.morning : breakHours.afternoon ;
+    return `${breakStart}:00 - ${breakStart}:${breakHours.durationMinutes}`;
+  }
+
   return (
     <div className="calendar-container">
       <div className="calendar-wrapper">
@@ -103,23 +115,27 @@ function Calendar() {
                     key={index}
                     className={`calendar-cell calendar-border ${isWorkingHour(day, hour) ? '' : 'calendar-hours-nonWorking'}`}>
                     {getReservationsForCell(day, hour).map((reservation, index: number) =>
-                      <div
-                        key={index}
-                        className="calendar-entry reservation"
-                        style={{
-                          top: getOffset(reservation.getMinutes()),
-                          height: getOffset(reservationDurationMinutes)
-                        }}
-                      >
-                      </div>
+                      <Tooltip title={getTimeTooltip(reservation, reservationDurationMinutes)}>
+                        <div
+                          key={index}
+                          className="calendar-entry reservation"
+                          style={{
+                            top: getOffset(reservation.getMinutes()),
+                            height: getOffset(reservationDurationMinutes)
+                          }}
+                        >
+                        </div>
+                      </Tooltip>
                     )}
                     {isBreakHour(day, hour) &&
-                      <div
-                        key={index}
-                        className="calendar-entry break"
-                        style={{height: getOffset(breakHours.durationMinutes)}}
-                      >
-                      </div>
+                      <Tooltip title={getBreakTooltip(day)}>
+                        <div
+                          key={index}
+                          className="calendar-entry break"
+                          style={{height: getOffset(breakHours.durationMinutes)}}
+                        >
+                        </div>
+                      </Tooltip>
                     }
                   </td>
                 )}
