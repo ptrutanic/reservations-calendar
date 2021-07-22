@@ -19,6 +19,16 @@ function Calendar() {
     return hours;
   }
 
+  const getReservationsForCell = (date: Date, hour: number) => {
+    return reservations.filter((reservation: Date) =>
+      reservation.getDate() === date.getDate() && reservation.getHours() === hour)
+  }
+
+  const getReservationOffset = (date: Date) => {
+    const cellHeight = 33;
+    return (date.getMinutes() / 60) * cellHeight;
+  }
+
   return (
     <div className="calendar-container">
       <div className="calendar-wrapper">
@@ -37,9 +47,11 @@ function Calendar() {
                 <td className="calendar-hours">{hour}</td>
                 {getWeekDates().map((day: Date, index: number) =>
                   <td key={index} className={`calendar-cell calendar-border ${isWorkingHour(day, hour) ? '' : 'calendar-hours-nonWorking'}`}>
-                    <div>
-                      Pauza
-                    </div>
+                    {getReservationsForCell(day, hour).map((reservation, index: number) =>
+                      <div key={index} className="calendar-entry reservation" style={{top: getReservationOffset(reservation)}}>
+                        {reservation.getMinutes()}
+                      </div>
+                    )}
                   </td>
                 )}
               </tr>

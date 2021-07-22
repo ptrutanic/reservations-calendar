@@ -22,12 +22,7 @@ export const workHours = {
 }
 
 export const breakHours = {
-    morning: {
-        start: 11,
-        end: 11.5
-    },
-    afternoon: {
-        start: 16,
-        end: 16.5
-    }
+    morning: 11,
+    afternoon: 16,
+    durationMinutes: 30
 }
