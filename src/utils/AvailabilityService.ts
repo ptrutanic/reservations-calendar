@@ -15,8 +15,12 @@ export const getWeekDates = () => {
     return days;
 }
 
+export const isWorkingDay = (date: Date) => {
+    return !((date.getDay() === 6 && !isEvenDay(date)) || date.getDay() === 0)
+}
+
 export const isWorkingHour = (date: Date, hour: number) => {
-    if((date.getDay() === 6 && !isEvenDay(date)) || date.getDay() === 0)
+    if (!isWorkingDay(date))
       return false;
 
     return isEvenDay(date)
@@ -42,7 +46,7 @@ export const isOverlappingReservation = (reservations: Date[], reservation: Date
 
 export const isEvenDay = (date: Date) => !(date.getDate() % 2);
 
-export const isReservationOverlappingBreakTime = (date: Date) => {
+export const isReservationOverlappingBrakeTime = (date: Date) => {
     const isDayEven = isEvenDay(date);
 
     const breakTimeStart = new Date(date);
@@ -74,7 +78,7 @@ export const generateReservations = () => {
                 : getRandomInt(60);
             reservation.setMinutes(reservationMinutes);
 
-            if (isOverlappingReservation(reservations, reservation) || isReservationOverlappingBreakTime(reservation))
+            if (isOverlappingReservation(reservations, reservation) || isReservationOverlappingBrakeTime(reservation))
                 continue;
 
             reservations.push(reservation);

@@ -111,3 +111,19 @@ html {
         }
     }
 }
+
+.addReservation {
+    &-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        > div {
+            margin-left: 20px;
+        }
+
+        > button {
+            margin-left: 20px;
+        }
+    }
+}

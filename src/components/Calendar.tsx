@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { generateReservations, getWeekDates, isEvenDay, isWorkingHour } from '../utils/AvailabilityService';
+import { generateReservations, getWeekDates, isEvenDay, isOverlappingReservation, isReservationOverlappingBrakeTime, isWorkingHour } from '../utils/AvailabilityService';
 import { breakHours, daysOfWeek, reservationDurationMinutes, workHours } from '../utils/Constants';
+import AddReservation from './AddReservation';
 import CalendarLegend from './CalendarLegend';
 
 function Calendar() {
   const [reservations, setReservations] = useState<Date[]>([]);
+  const [userCreatedReservations, setUserCreatedReservations] = useState<Date[]>([]);
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
 
   useEffect(() => {
     if (!reservations.length)
@@ -38,9 +41,23 @@ function Calendar() {
       : breakHours.afternoon === hour;
   }
 
+  const handleAddReservation = (date: Date) => {
+    if (isOverlappingReservation(reservations, date)) {
+      return;
+    }
+
+    if (isReservationOverlappingBrakeTime(date)) {
+      return;
+    }
+
+    setReservations([...reservations, date]);
+    setUserCreatedReservations([...userCreatedReservations, date]);
+  }
+
   return (
     <div className="calendar-container">
       <div className="calendar-wrapper">
+        <AddReservation handleAddReservation={handleAddReservation} />
         <table className="calendar-body">
           <tbody>
             <tr>
