@@ -6,6 +6,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import AddReservation from './AddReservation';
 import CalendarLegend from './CalendarLegend';
 import moment from 'moment';
+import { validateReservation } from '../utils/Validator';
 
 function Calendar() {
   const [reservations, setReservations] = useState<Date[]>([]);
@@ -52,28 +53,10 @@ function Calendar() {
   }
 
   const handleAddReservation = (date: Date) => {
-    if (!isWorkingHour(date, date.getHours())) {
-      triggerSnackbar('The office is not working on selected date and time');
-      return;
-    }
+    const { errorMessage, isValid } = validateReservation(date, reservations, userCreatedReservations);
 
-    if (isOverlappingReservation(reservations, date)) {
-      triggerSnackbar('There is another reservation overlapping with your reservation');
-      return;
-    }
-
-    if (isReservationOverlappingBreakTime(date)) {
-      triggerSnackbar('The office is having a break on selected time');
-      return;
-    }
-
-    if (userCreatedReservations.length >= 2) {
-      triggerSnackbar('You can not make more than 2 reservations in a week');
-      return;
-    }
-
-    if (userCreatedReservations.some((reservation: Date) => reservation.getDate() === date.getDate())) {
-      triggerSnackbar('You can not make more than 1 reservation in a day');
+    if (!isValid) {
+      triggerSnackbar(errorMessage);
       return;
     }
 
