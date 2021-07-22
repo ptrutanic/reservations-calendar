@@ -9,8 +9,14 @@ export const daysOfWeek = [
 ];
 
 export const workHours = {
-    startHour: 8,
-    endHour: 19
+    morning: {
+        start: 8,
+        end: 14
+    },
+    afternoon: {
+        start: 13,
+        end: 19
+    }
 }
 
 export const breakHours = {

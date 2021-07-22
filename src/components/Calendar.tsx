@@ -20,10 +20,17 @@ function Calendar() {
 
   const getWorkHours = () => {
     var hours: number[] = [];
-    for (var hour = workHours.startHour; hour <= workHours.endHour; hour++) {
+    for (var hour = workHours.morning.start; hour <= workHours.afternoon.end; hour++) {
       hours.push(hour);
     }
     return hours;
+  }
+
+  const isWorkingHour = (date: Date, hour: number) => {
+    const isEvenDay = !(date.getDate() % 2)
+    return isEvenDay
+      ? hour >= workHours.morning.start && hour < workHours.morning.end
+      : hour >= workHours.afternoon.start && hour < workHours.afternoon.end
   }
 
   return (
@@ -31,7 +38,7 @@ function Calendar() {
       <div className="calendar-wrapper">
         <table className="calendar-body">
           <tr>
-            <th className="calendar-hours"></th>
+            <td className="calendar-hours"></td>
             {getWeekDates().map((day: Date, index: number) =>
               <th key={index} className={`calendar-cell ${index !== 0 ? "calendar-border-left" : ''}`}>
                 {`${daysOfWeek[day.getDay()]} ${day.getDate()}.${day.getMonth() + 1}.`}
@@ -42,8 +49,8 @@ function Calendar() {
             <tr key={index}>
               <td className="calendar-hours">{hour}</td>
               {getWeekDates().map((day: Date, index: number) =>
-                <th key={index} className="calendar-cell calendar-border">
-                </th>
+                <td key={index} className={`calendar-cell calendar-border ${isWorkingHour(day, hour) ? '' : 'calendar-hours-nonWorking'}`}>
+                </td>
               )}
             </tr>
           )}
