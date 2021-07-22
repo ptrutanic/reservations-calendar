@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { generateReservations, getWeekDates, isWorkingHour } from '../utils/AvailabilityService';
 import { daysOfWeek, workHours } from '../utils/Constants';
 import CalendarLegend from './CalendarLegend';
 
 function Calendar() {
-  const [reservations, setReservations] = useState(generateReservations())
+  const [reservations, setReservations] = useState<Date[]>([]);
+
+  useEffect(() => {
+    if (!reservations.length)
+      setReservations(generateReservations());
+  }, [reservations.length])
 
   const getWorkHours = () => {
     let hours: number[] = [];

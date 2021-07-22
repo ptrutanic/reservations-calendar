@@ -1,4 +1,4 @@
-import { workHours } from "./Constants";
+import { reservationDurationMinutes, workHours } from "./Constants";
 
 export const getWeekDates = () => {
     const today = new Date();
@@ -30,8 +30,12 @@ function getRandomInt(max: number) {
     return Math.floor(Math.random() * max);
 }
 
-export const isValidReservation = () => {
-
+export const isValidReservation = (reservations: Date[], reservation: Date) => {
+    return !reservations.some((date: Date) => {
+        const dateDiff = Math.abs(date.getTime() - reservation.getTime());
+        const differenceMinutes = dateDiff / 1000 / 60;
+        return differenceMinutes < reservationDurationMinutes;
+    });
 }
 
 export const generateReservations = () => {
@@ -41,24 +45,19 @@ export const generateReservations = () => {
         const isEvenDay = !(date.getDate() % 2);
 
         const hour = isEvenDay
-            ? getRandomInt(6) + 8
-            : getRandomInt(6) + 13;
+            ? getRandomInt(workHours.morning.end - workHours.morning.start) + workHours.morning.start
+            : getRandomInt(workHours.afternoon.end - workHours.afternoon.start) + workHours.afternoon.start;
     
 
         if(isWorkingHour(date, hour)) {
             const reservation = new Date(date); 
             reservation.setHours(hour);
             const reservationMinutes = (isEvenDay && hour === workHours.morning.end - 1) ||(!isEvenDay && hour === workHours.afternoon.end - 1)
-                ? getRandomInt(30)
+                ? getRandomInt(60 - reservationDurationMinutes)
                 : getRandomInt(60);
             reservation.setMinutes(reservationMinutes);
 
-            const hasOverlappingDates = reservations.some((date: Date) => {
-                const dateDiff = Math.abs(date.getTime() - reservation.getTime());
-                return Math.floor((dateDiff/1000) % 60) < 30;
-            })
-
-            if (hasOverlappingDates)
+            if (!isValidReservation(reservations, reservation))
                 continue;
 
             reservations.push(reservation);

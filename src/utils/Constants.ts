@@ -8,6 +8,8 @@ export const daysOfWeek = [
     "Saturday"
 ];
 
+export const reservationDurationMinutes = 30;
+
 export const workHours = {
     morning: {
         start: 8,
